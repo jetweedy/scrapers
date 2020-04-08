@@ -31,25 +31,29 @@ let scrape = async (alpha) => {
 	});
 	var skipped = false;
 	if (toomany) {
+		alphas[alpha].done = true;
 		for (var ap in ALPHAPARTS) {
-			alphas.push(alpha+ALPHAPARTS[ap]);
+			alphas[alpha+ALPHAPARTS[ap]] = {
+				busy:false
+				,
+				done:false
+			}
 		}
 		skipped = true;
 	} else {
-		
-
-		var morePages = true;
-		while(morePages) {
-			await page.waitFor(1500);
+		morePages[alpha] = true;
+		while(morePages[alpha]) {
+			pageIndexes[alpha]++;
+			await page.waitFor(3000);
 			var data = await page.evaluate(() => {
-				var r = [];
+				var r = {results:[]};
 				if (document.querySelector('#ctl00_LocatorPublicPageContent_gvGridView > tbody')) {
 					var html = document.querySelector('#ctl00_LocatorPublicPageContent_gvGridView > tbody').innerHTML;
 					var matches = [];
 					var re = /<tr>.*?<td><a.*?>(.*?)<\/a><\/td>.*?<td>(.*?)<\/td>.*?<td>(.*?)<\/td>.*?<td>(.*?)<\/td>.*?<\/tr>/sg;
 					do { m = re.exec(html); if (m) { matches.push(m); } } while (m);
 					for (var m in matches) {
-						r.push({
+						r.results.push({
 							name:matches[m][1].trim()
 							,
 							id:matches[m][2].trim()
@@ -59,14 +63,24 @@ let scrape = async (alpha) => {
 							admdate:matches[m][4].trim()
 						});
 					}
+				} else {
+					r.error = "no gridview body found";
 				}
 				return r;
 			});
-			for (var r in data) {
-				results.push(data[r]);
+			if (typeof data.error != "undefined") {
+				console.log("(!)--------------> data.error | " + alpha);
+				console.log(data.error);
+				console.log("^------------------^");
+			}
+			if (data.length==0) { 
+				console.log("(!)--------------> No records found on page " + pageIndexes[alpha] + " of " + alpha + ".");
+			}
+			for (var r in data.results) {
+				results.push(data.results[r]);
 			}
 	//		console.log("data", data);
-			morePages = await page.evaluate(() => {
+			morePages[alpha] = await page.evaluate(() => {
 				var as = document.getElementsByTagName("A");
 				for (var a=0;a<as.length;a++) {
 					if (as[a].innerHTML=="Next Page") {
@@ -75,12 +89,12 @@ let scrape = async (alpha) => {
 				}
 				return false;
 			});
-//			console.log("morePages", morePages);
-			if (morePages) {
+//			console.log("morePages["+alpha+"]", morePages[alpha]);
+			if (morePages[alpha]) {
 				await page.click('#ctl00_LocatorPublicPageContent_gvGridView > tbody > tr:nth-child(23) > td > table > tbody > tr > td:last-child > a');			
 			}
 			await page.waitFor(500);
-//			morePages = false;
+//			morePages[alpha] = false;
 		}
 
 		
@@ -91,14 +105,16 @@ let scrape = async (alpha) => {
 
 
 var scrapeAlpha = (alpha) => {
+	pageIndexes[alpha] = 0;
 	if (fs.existsSync("./California/"+alpha+".csv")) {
 		console.log("File exists, so skipping " + alpha + ".");
-		tryNextAlpha()
+		alphas[alpha].done = true;
+		alphas[alpha].busy = false;
+		tryAnotherAlpha('File existed already.');
 	} else {
 		console.log("Starting '"+alpha+"'...");
 		scrape(alpha).then((x) => {
 	//		console.log("x", x);
-
 			if (x.results.length>0) {
 				var csv = parser.parse(x.results);		
 				var lines = csv.split('\n');
@@ -108,85 +124,60 @@ var scrapeAlpha = (alpha) => {
 			}
 			if (!x.skipped) {
 				console.log("Done with '" + x.alpha + "'.");				
+				alphas[alpha].done = true;
+				alphas[alpha].busy = false;
 			} else {
 				console.log("Split '" + x.alpha + "' due to excess results.");
+				alphas[alpha].busy = false;
 			}
-			tryNextAlpha()
-		});	
+			tryAnotherAlpha('/scrapeAlpha()');
+		});
 	}
 }
 
 
-
-
-
-function tryAlpha(ai) {
-	if (ai<alphas.length) {
-		scrapeAlpha(alphas[ai]);
+function tryAnotherAlpha(reason) {
+	console.log("-----");
+	console.log("tryAnotherAlpha()");
+	if (typeof reason != "undefined") { console.log("reason", reason); }
+	console.log("alphas", alphas);
+	var allDone = true;
+	for (var a in alphas) {
+		console.log(a, alphas[a]);
+		if (!alphas[a].done) {
+			if (!alphas[a].busy) {
+				alphas[a].busy = true;
+				scrapeAlpha(a);
+				return;
+			}
+			allDone = false;
+		}
+	}
+	if (!allDone) {
+		console.log("Waiting a bit before looking for more to do.");
+		setTimeout(() => {
+			tryAnotherAlpha('Jobs were busy earlier.');
+		}, 5000);
 	}
 }
-function tryNextAlpha() {
-	tryAlpha(++alphaIndex);
-}
+
 var browsers = {};
+var morePages = {};
+var pageIndexes = {};
 var alphaIndex = -1;
 
 var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 var ALPHAHALVES = ['[A-M]','[N-Z]'];
-var ALPHAPARTS = [];
-for (var a=0;a<ALPHABET.length;a+=4) {
-	var ps = "["+ALPHABET[a];
-/*
-	if (typeof ALPHABET[a+6] != "undefined") {
-		ps = ps+"-"+ALPHABET[a+6];
-	}
-	else
-	if (typeof ALPHABET[a+5] != "undefined") {
-		ps = ps+"-"+ALPHABET[a+5];
-	} 
-	else
-	if (typeof ALPHABET[a+4] != "undefined") {
-		ps = ps+"-"+ALPHABET[a+4];
-	} 
-	else 
-*/
-	if (typeof ALPHABET[a+3] != "undefined") {
-		ps = ps+"-"+ALPHABET[a+3];
-	} 
-	else
-	if (typeof ALPHABET[a+2] != "undefined") {
-		ps = ps+"-"+ALPHABET[a+2];
-	} 
-	else 
-	if (typeof ALPHABET[a+1] != "undefined") {
-		ps = ps+"-"+ALPHABET[a+1];
-	}
-	ps = ps + "]";
-	ALPHAPARTS.push(ps);
-}
 var ALPHAPARTS = ALPHAHALVES;
 console.log("ALPHAPARTS", ALPHAPARTS);
 
-var alphas = ['V'];
-console.log("alphas", alphas);
-tryNextAlpha();
+var alphas = {'V':{busy:false,done:false}};
+
+tryAnotherAlpha(1);
+tryAnotherAlpha(2);
 
 
 
-
-/*
-//// To run alphas
-alphas = [
-	'W[AEIOU]'
-	,'W[BCDFGHJK]'
-	,'W[LMNPQRS]'
-	,'W[TVWXYZ]'
-	,[UVXYZ]'
-];
-tryNextAlpha();
-tryNextAlpha();
-//// etc
-*/
 
 
 
