@@ -16,7 +16,19 @@ let scrape = async (alpha) => {
 	await page.evaluate(() => {
 		document.querySelector("#ctl00_LocatorPublicPageContent_txtLastName").setAttribute("maxlength",100);
 	});
-	await page.type('#ctl00_LocatorPublicPageContent_txtLastName', alpha); //, {delay: 20});		
+
+	var alphastring = alpha + "";
+	if (alpha.length > 16) {
+		alphastring = alpha.substring(0,16) + "|" + alpha.substring(16);
+	}
+	console.log("alphastring", alphastring);
+
+	var alphaparts = alphastring.split("|");
+	await page.type('#ctl00_LocatorPublicPageContent_txtLastName', alphaparts[0]); //, {delay: 20});		
+	if (alphaparts.length>1) {
+		await page.type('#ctl00_LocatorPublicPageContent_txtFirstName', alphaparts[1]); //, {delay: 20});		
+	}
+	await page.waitFor(200);
 	await page.click('#ctl00_LocatorPublicPageContent_btnSearch');
 	await page.waitFor(3000);
 	var results = [];
@@ -44,7 +56,6 @@ let scrape = async (alpha) => {
 		morePages[alpha] = true;
 		while(morePages[alpha]) {
 			pageIndexes[alpha]++;
-			await page.waitFor(3000);
 			var data = await page.evaluate(() => {
 				var r = {results:[]};
 				if (document.querySelector('#ctl00_LocatorPublicPageContent_gvGridView > tbody')) {
@@ -70,7 +81,7 @@ let scrape = async (alpha) => {
 			});
 			if (typeof data.error != "undefined") {
 				console.log("v------------------v");
-				console.log("(!)---> data.error | " + alpha);
+				console.log("(!)---> data.error | " + alpha + " | page " + pageIndexes[alpha]);
 				console.log(data.error);
 				console.log("^------------------^");
 			}
@@ -95,6 +106,7 @@ let scrape = async (alpha) => {
 //			console.log("morePages["+alpha+"]", morePages[alpha]);
 			if (morePages[alpha]) {
 				await page.click('#ctl00_LocatorPublicPageContent_gvGridView > tbody > tr:nth-child(23) > td > table > tbody > tr > td:last-child > a');			
+				await page.waitFor(3000);
 			}
 			await page.waitFor(500);
 //			morePages[alpha] = false;
@@ -166,17 +178,32 @@ function tryAnotherAlpha(reason) {
 var browsers = {};
 var morePages = {};
 var pageIndexes = {};
-var alphaIndex = -1;
 
 var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 var ALPHAHALVES = ['[A-M]','[N-Z]'];
 var ALPHAPARTS = ALPHAHALVES;
 console.log("ALPHAPARTS", ALPHAPARTS);
 
+
+
+/*
+var useLetters = 'ABCDEFG';
+for (var a in useLetters) {
+	alphas[useLetters[a]] = {busy:false,done:false};
+}
+delete alphas['V'];
+*/
+
+// alphas["[A-Z]'"] = {busy:false,done:false};
+
+//var alphas = {'V[A-M][A-M][A-M]':{busy:false, done:false}};
 var alphas = {'V':{busy:false,done:false}};
 
 tryAnotherAlpha(1);
 tryAnotherAlpha(2);
+tryAnotherAlpha(3);
+tryAnotherAlpha(4);
+tryAnotherAlpha(5);
 
 
 
