@@ -186,7 +186,8 @@ var MAXLASTNAMELENGTH = 6;
 
 
 var alphas = {};
-var useLetters = 'FGHIJKL';
+//var useLetters = 'FGHIJKL';
+var useLetters = 'MNOPQRSTUVWXYZ';
 for (var a in useLetters) {
 	alphas[useLetters[a]] = {busy:false,done:false};
 }
