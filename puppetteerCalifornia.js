@@ -18,8 +18,8 @@ let scrape = async (alpha) => {
 	});
 
 	var alphastring = alpha + "";
-	if (alpha.length > 16) {
-		alphastring = alpha.substring(0,16) + "|" + alpha.substring(16);
+	if (alpha.length > MAXLASTNAMELENGTH) {
+		alphastring = alpha.substring(0,MAXLASTNAMELENGTH) + "|" + alpha.substring(MAXLASTNAMELENGTH);
 	}
 //	console.log("alphastring", alphastring);
 
@@ -180,24 +180,27 @@ var morePages = {};
 var pageIndexes = {};
 
 var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-var ALPHAHALVES = ['[A-M]','[N-Z]'];
-var ALPHAPARTS = ALPHAHALVES;
+var ALPHAPARTS = ['[A-I]','[J-R]','[S-Z]'];
+var MAXLASTNAMELENGTH = 6;
 //console.log("ALPHAPARTS", ALPHAPARTS);
 
 
-
-/*
-var useLetters = 'ABCDEFG';
+var alphas = {};
+var useLetters = 'FGHIJKL';
 for (var a in useLetters) {
 	alphas[useLetters[a]] = {busy:false,done:false};
 }
-delete alphas['V'];
-*/
-
+//console.log(alphas);
 // alphas["[A-Z]'"] = {busy:false,done:false};
 
 //var alphas = {'V[A-M][A-M][A-M]':{busy:false, done:false}};
-var alphas = {'V':{busy:false,done:false}};
+/*
+var alphas = {};
+alphas['B'] = {busy:false,done:false};
+alphas['C'] = {busy:false,done:false};
+alphas['D'] = {busy:false,done:false};
+alphas['E'] = {busy:false,done:false};
+*/
 
 tryAnotherAlpha(1);
 tryAnotherAlpha(2);
