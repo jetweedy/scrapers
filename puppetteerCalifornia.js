@@ -29,13 +29,13 @@ let scrape = async (alpha) => {
 		}
 		return false;
 	});
+	var skipped = false;
 	if (toomany) {
-		// Divide the alpha segment into two halves, push to the end, and skip scraping
 		for (var ap in ALPHAPARTS) {
 			alphas.push(alpha+ALPHAPARTS[ap]);
 		}
 		console.log("Too many for '"+alpha+"', so splitting...");
-//		console.log("alphas", alphas);
+		skipped = true;
 	} else {
 		
 
@@ -87,7 +87,7 @@ let scrape = async (alpha) => {
 		
 	}
 	browsers[alpha].close();
-	return {alpha:alpha, results:results};
+	return {alpha:alpha, results:results, skipped:skipped};
 };
 
 
@@ -106,8 +106,11 @@ var scrapeAlpha = (alpha) => {
 				csv = lines.join('\n');		
 				fs.writeFile("./California/"+x.alpha+".csv", csv+"\n", ()=>{});
 			}
-
-			console.log("Done with '" + x.alpha + "'.");
+			if (!x.skipped) {
+				console.log("Done with '" + x.alpha + "'.");				
+			} else {
+				console.log("Split '" + x.alpha + "' due to excess results.");
+			}
 			tryNextAlpha()
 		});	
 	}
