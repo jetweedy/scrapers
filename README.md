@@ -12,13 +12,3 @@ or
 ```
 sudo npm install --save puppeteer --no-bin-links
 ```
-
-## Installing nightmare:
-
-```
-sudo npm install --save nightmare --no-bin-links
-```
-or
-```
-sudo npm install -g nightmare --unsafe-perm=true --allow-root
-```
