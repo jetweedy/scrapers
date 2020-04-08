@@ -12,7 +12,7 @@ let scrape = async (alpha) => {
 	await page.goto('https://inmatelocator.cdcr.ca.gov/search.aspx');
 	await page.waitFor(1000);
 	await page.click('#ctl00_LocatorPublicPageContent_btnAccept');
-	await page.waitFor(1000);
+	await page.waitFor(2000);
 	await page.evaluate(() => {
 		document.querySelector("#ctl00_LocatorPublicPageContent_txtLastName").setAttribute("maxlength",100);
 	});
@@ -69,12 +69,15 @@ let scrape = async (alpha) => {
 				return r;
 			});
 			if (typeof data.error != "undefined") {
-				console.log("(!)--------------> data.error | " + alpha);
+				console.log("v------------------v");
+				console.log("(!)---> data.error | " + alpha);
 				console.log(data.error);
 				console.log("^------------------^");
 			}
 			if (data.length==0) { 
-				console.log("(!)--------------> No records found on page " + pageIndexes[alpha] + " of " + alpha + ".");
+				console.log("v------------------v");
+				console.log("(!)---> No records found on page " + pageIndexes[alpha] + " of " + alpha + ".");
+				console.log("^------------------^");
 			}
 			for (var r in data.results) {
 				results.push(data.results[r]);
@@ -137,13 +140,12 @@ var scrapeAlpha = (alpha) => {
 
 
 function tryAnotherAlpha(reason) {
-	console.log("-----");
-	console.log("tryAnotherAlpha()");
-	if (typeof reason != "undefined") { console.log("reason", reason); }
-	console.log("alphas", alphas);
+//	console.log("-----");
+//	console.log("tryAnotherAlpha()");
+//	if (typeof reason != "undefined") { console.log("reason", reason); }
 	var allDone = true;
 	for (var a in alphas) {
-		console.log(a, alphas[a]);
+//		console.log(a, alphas[a]);
 		if (!alphas[a].done) {
 			if (!alphas[a].busy) {
 				alphas[a].busy = true;
@@ -154,7 +156,7 @@ function tryAnotherAlpha(reason) {
 		}
 	}
 	if (!allDone) {
-		console.log("Waiting a bit before looking for more to do.");
+//		console.log("Waiting a bit before looking for more to do.");
 		setTimeout(() => {
 			tryAnotherAlpha('Jobs were busy earlier.');
 		}, 5000);
