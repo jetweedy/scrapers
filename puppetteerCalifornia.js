@@ -21,7 +21,7 @@ let scrape = async (alpha) => {
 	if (alpha.length > 16) {
 		alphastring = alpha.substring(0,16) + "|" + alpha.substring(16);
 	}
-	console.log("alphastring", alphastring);
+//	console.log("alphastring", alphastring);
 
 	var alphaparts = alphastring.split("|");
 	await page.type('#ctl00_LocatorPublicPageContent_txtLastName', alphaparts[0]); //, {delay: 20});		
@@ -182,7 +182,7 @@ var pageIndexes = {};
 var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 var ALPHAHALVES = ['[A-M]','[N-Z]'];
 var ALPHAPARTS = ALPHAHALVES;
-console.log("ALPHAPARTS", ALPHAPARTS);
+//console.log("ALPHAPARTS", ALPHAPARTS);
 
 
 
