@@ -34,7 +34,6 @@ let scrape = async (alpha) => {
 		for (var ap in ALPHAPARTS) {
 			alphas.push(alpha+ALPHAPARTS[ap]);
 		}
-		console.log("Too many for '"+alpha+"', so splitting...");
 		skipped = true;
 	} else {
 		
