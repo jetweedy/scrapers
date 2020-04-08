@@ -93,6 +93,7 @@ let scrape = async (alpha) => {
 var scrapeAlpha = (alpha) => {
 	if (fs.existsSync("./California/"+alpha+".csv")) {
 		console.log("File exists, so skipping " + alpha + ".");
+		tryNextAlpha()
 	} else {
 		console.log("Starting '"+alpha+"'...");
 		scrape(alpha).then((x) => {
