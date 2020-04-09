@@ -179,17 +179,23 @@ var MAXLASTNAMELENGTH = 6;
 
 
 var alphas = {};
-var useLetters = 'ABCDEFGH';
+
+/*
+//var useLetters = 'ABCDEFGH';
+//var useLetters = 'IJKLMNOPQR';
+//var useLetters = 'STUVQXYZ';
 for (var a in useLetters) {
 	alphas[useLetters[a]] = {busy:false,done:false};
 }
-
+*/
 
 /*
 //var alphas = {'V[A-M][A-M][A-M]':{busy:false, done:false}};
 var alphas = {};
 alphas['A'] = {busy:false,done:false};
 */
+
+
 
 //console.log(alphas);
 
