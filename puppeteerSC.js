@@ -120,7 +120,7 @@ var scrapeAlpha = (alpha) => {
 	} else {
 		console.log("Starting '"+alpha+"'...");
 		scrape(alpha).then((x) => {
-			console.log("x", x);
+//			console.log("x", x);
 /* SAVING */
 			if (x.results.length>0) {
 				var csv = parser.parse(x.results);		
@@ -194,10 +194,10 @@ alphas['A'] = {busy:false,done:false};
 //console.log(alphas);
 
 tryAnotherAlpha(1);
-//tryAnotherAlpha(2);
-//tryAnotherAlpha(3);
-//tryAnotherAlpha(4);
-//tryAnotherAlpha(5);
+tryAnotherAlpha(2);
+tryAnotherAlpha(3);
+tryAnotherAlpha(4);
+tryAnotherAlpha(5);
 
 
 
