@@ -80,7 +80,7 @@ let scrape = async (alpha) => {
 			morePages[alpha] = await page.evaluate(() => {
 				return (document.getElementById("searchTable_next").className.indexOf('disabled') < 0);
 			});
-			console.log("morePages["+alpha+"]", morePages[alpha]);
+//			console.log("morePages["+alpha+"]", morePages[alpha]);
 			if (morePages[alpha]) {
 				await page.click('#searchTable_next');			
 				await page.waitFor(500);
