@@ -3,13 +3,8 @@ const fs = require("fs");
 const { Parser } = require('json2csv');
 const parser = new Parser();
 
+let ids = {};
 
-/*
-
-Go through lists of results and compile array of Ids:
-Then Visit this URL for each of those:
-https://www.sosnc.gov/online_services/Search/Business_Registration_profile?Id=10473115
-*/
 
 
 let scrape = async (alpha) => {
@@ -47,56 +42,22 @@ let scrape = async (alpha) => {
 		morePages[alpha] = true;
 		while(morePages[alpha]) {
 			pageIndexes[alpha]++;
-			/*
 			var data = await page.evaluate(() => {
-				function cleanSearchResultString(x) {
-					x = x.replace(/\t/g," ");
-					x = x.replace(/ +/g," ");
-					return x.trim();
-				}
 				var r = {results:[]};
-				if (document.querySelector('#myTable > tbody')) {
-					var html = document.querySelector('#myTable > tbody').innerHTML;
-					var matches = [];
-					var re = /<tr.*?>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<\/tr>/sg;
-					do { m = re.exec(html); if (m) { matches.push(m); } } while (m);
-					for (var m in matches) {
-						r.results.push({
-							id:cleanSearchResultString(matches[m][1])
-							,
-							name:cleanSearchResultString(matches[m][2])
-							,
-							sex:cleanSearchResultString(matches[m][3])
-							,
-							race:cleanSearchResultString(matches[m][4])
-							,
-							age:cleanSearchResultString(matches[m][7])
-						});
-					}
-				} else {
-					r.error = "no table body found";
+				var x = document.body.innerHTML;
+//				var patt = RegExp('profile\?Id=[0-9]+','g');
+				var patt = RegExp('ShowProfile\\(\'([0-9]+)\'\\)','gis');
+				while( (match = patt.exec(x)) !== null) {
+					r.results.push(match[1]);
 				}
 				return r;
 			});
-			if (typeof data.error != "undefined") {
-				console.log("v------------------v");
-				console.log("(!)---> data.error | " + alpha + " | page " + pageIndexes[alpha]);
-				console.log(data.error);
-				console.log("^------------------^");
-			}
-			if (data.length==0) { 
-				console.log("v------------------v");
-				console.log("(!)---> No records found on page " + pageIndexes[alpha] + " of " + alpha + ".");
-				console.log("^------------------^");
-			}
 			for (var r in data.results) {
 				results.push(data.results[r]);
 			}
-	//		console.log("data", data);
-			*/
 			morePages[alpha] = await page.evaluate(() => {
 				var np = document.querySelector("#NextPage");
-				if (np && np.className!="disabled") {
+				if (np && np.className!="disabled" && !np.previousElementSibling.classList.contains("active")) {
 					return true;
 				}
 				return false;
@@ -104,15 +65,14 @@ let scrape = async (alpha) => {
 //			console.log("morePages["+alpha+"]", morePages[alpha]);
 			if (morePages[alpha]) {
 				await page.click('#NextPage');			
-				await page.waitFor(10000);
+				await page.waitForTimeout(1000);
 			}
-			await page.waitFor(2000);
+			await page.waitForTimeout(1000);
 //			morePages[alpha] = false;				// <--------- leave false because all results hidden on one page
 		}
 
 
 	}
-
 	browsers[alpha].close();
 	return {alpha:alpha, results:results, skipped:skipped};
 };
@@ -121,29 +81,27 @@ let scrape = async (alpha) => {
 var scrapeAlpha = (alpha) => {
 	pageIndexes[alpha] = 0;
 	if (fs.existsSync("./ncsosresults/"+alpha+".csv")) {
-		console.log("File exists, so skipping " + alpha + ".");
+//		console.log("File exists, so skipping " + alpha + ".");
 		alphas[alpha].done = true;
 		alphas[alpha].busy = false;
 		tryAnotherAlpha('File existed already.');
 	} else {
-		console.log("Starting '"+alpha+"'...");
+//		console.log("Starting '"+alpha+"'...");
 		scrape(alpha).then((x) => {
-			console.log("x", x);
-/*
+//			console.log("x", x);
+
 			if (x.results.length>0) {
-				var csv = parser.parse(x.results);		
-				var lines = csv.split('\n');
-				lines.splice(0,1);
-				csv = lines.join('\n');		
-				fs.writeFile("./ncsosresults/"+x.alpha+".csv", csv+"\n", ()=>{});
+				for (var r in x.results) {
+					ids[x.results[r]] = false;
+				}
 			}
-*/
+
 			if (!x.skipped) {
-				console.log("Done with '" + x.alpha + "'.");				
+//				console.log("Done with '" + x.alpha + "'.");				
 				alphas[alpha].done = true;
 				alphas[alpha].busy = false;
 			} else {
-				console.log("Split '" + x.alpha + "' due to excess results.");
+//				console.log("Split '" + x.alpha + "' due to excess results.");
 				alphas[alpha].busy = false;
 			}
 
@@ -154,12 +112,8 @@ var scrapeAlpha = (alpha) => {
 
 
 function tryAnotherAlpha(reason) {
-//	console.log("-----");
-//	console.log("tryAnotherAlpha()");
-//	if (typeof reason != "undefined") { console.log("reason", reason); }
 	var allDone = true;
 	for (var a in alphas) {
-//		console.log(a, alphas[a]);
 		if (!alphas[a].done) {
 			if (!alphas[a].busy) {
 				alphas[a].busy = true;
@@ -170,10 +124,14 @@ function tryAnotherAlpha(reason) {
 		}
 	}
 	if (!allDone) {
-//		console.log("Waiting a bit before looking for more to do.");
 		setTimeout(() => {
 			tryAnotherAlpha('Jobs were busy earlier.');
 		}, 1000);
+	} else {
+		//// This is where we should then handle all of these compiled IDS:
+		//// Visit this URL for each of those:
+		//// https://www.sosnc.gov/online_services/Search/Business_Registration_profile?Id=10473115
+		console.log("ids: ", ids);
 	}
 }
 
@@ -205,6 +163,10 @@ for (var a in useLetters) {
 		}
 	}
 }
+
+alphas = {};
+alphas["AAA"] = {busy:false,done:false};
+alphas["ABA"] = {busy:false,done:false};
 
 console.log("alphas: ", alphas);
 
