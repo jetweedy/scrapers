@@ -4,6 +4,13 @@ const { Parser } = require('json2csv');
 const parser = new Parser();
 
 
+/*
+
+Go through lists of results and compile array of Ids:
+Then Visit this URL for each of those:
+https://www.sosnc.gov/online_services/Search/Business_Registration_profile?Id=10473115
+*/
+
 
 let scrape = async (alpha) => {
 	browsers[alpha] = await puppeteer.launch({headless: false});	// <--- set to true for scraping
