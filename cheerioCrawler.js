@@ -32,7 +32,7 @@ Apify.main(async () => {
                 $,
                 requestQueue,
                 baseUrl: request.loadedUrl,
-                pseudoUrls: ['http[s?]://www.truewindtechnology.com/[.+]'],
+                pseudoUrls: ['http[s?]://truewindtechnology.com/[.+]', 'http[s?]://www.truewindtechnology.com/[.+]'],
             });            
             
         },
