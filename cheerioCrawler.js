@@ -20,17 +20,38 @@ Apify.main(async () => {
     const crawler = new Apify.CheerioCrawler({
         requestQueue,
         handlePageFunction: async ({ request, response, body, contentType, $ }) => {
-            const data = [];
             const metas = [];
-
             $('head > meta').each((index, el) => {
-                console.log("meta element");
-                console.log(el.attribs);
-//                metas.push({
-//                    name: el.attr("name"),
-//                    content: el.attr("content"),
-//                });
+                if (typeof el.attribs.name != "undefined") {
+                    metas.push({
+                        name: el.attribs.name,
+                        content: el.attribs.content,
+                    });
+                }
             });
+            
+            const headings = [];
+            $('h1').each((index, el) => {
+                headings.push({
+                    type: "h1",
+                    content: $(el).text(),
+                });
+            });
+            $('h2').each((index, el) => {
+                headings.push({
+                    type: "h2",
+                    content: $(el).text(),
+                });
+            });
+            $('h3').each((index, el) => {
+                headings.push({
+                    type: "h3",
+                    content: $(el).text(),
+                });
+            });
+            
+            
+            const data = [];
 /*
             $('.jet-feature-panel').each((index, el) => {
                 data.push({
@@ -45,16 +66,19 @@ Apify.main(async () => {
                 url: request.url,
 //                html: body,
                 title: $('title').text(), 
+                headings: headings, 
                 metas: metas, 
                 data: data,
             });
 
-//            await Apify.utils.enqueueLinks({
-//                $,
-//                requestQueue,
-//                baseUrl: request.loadedUrl,
-//                pseudoUrls: purls,
-//            });            
+            if (true) {
+                await Apify.utils.enqueueLinks({
+                    $,
+                    requestQueue,
+                    baseUrl: request.loadedUrl,
+                    pseudoUrls: purls,
+                });            
+            }
             
         },
     });
