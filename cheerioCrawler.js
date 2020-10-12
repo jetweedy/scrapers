@@ -29,6 +29,11 @@ Apify.main(async () => {
                     });
                 }
             });
+                        
+            const emailregexp = /\S+@\S+\.\S+/;
+            const emails = [...$('body').text().matchAll(emailregexp)];
+            const phoneregexp = /\(?[0-9]{3}\)?[-.]?[0-9]{3}[-.]?[0-9]{4}/g;
+            const phones = [...$('body').text().matchAll(phoneregexp)];
             
             const headings = [];
             $('h1').each((index, el) => {
@@ -51,6 +56,8 @@ Apify.main(async () => {
             });
             
             
+            
+                       
             const data = [];
 /*
             $('.jet-feature-panel').each((index, el) => {
@@ -64,9 +71,10 @@ Apify.main(async () => {
             // Save the data to dataset.
             await Apify.pushData({
                 url: request.url,
-//                html: body,
                 title: $('title').text(), 
                 headings: headings, 
+                emails: emails,
+                phones: phones,
                 metas: metas, 
                 data: data,
             });
