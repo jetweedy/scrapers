@@ -50,7 +50,10 @@ var scrapeDetails = async (browser, url, n) => {
         var crows = document.querySelectorAll("#mainContent_CenterColumnContent_dgMainResults > tbody tr:not(:first-child)");
         for (var c in crows) {
             if (crows[c].tagName=="TR") {
-                charge = crows[c].innerHTML.match(/<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>.*?(\$.*)<\/td>/);
+                charge = crows[c].innerHTML.match(/<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>(.*?)<\/td>.*?<td.*?>.*?(\$.*)?<\/td>/);
+                if (charge[4]==null) {
+                    charge[4] = "N/A";
+                }
                 x.charges.push({
                     charge:charge[1]
                     , charge_status:charge[2]
