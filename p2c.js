@@ -22,6 +22,7 @@ const parser = new Parser();
 // ------------------------
 // Hide this when testing:
 // ------------------------
+/*
 const mysql = require('mysql');
 require('dotenv').config({ path: __dirname+'/../.env' })
 var con = mysql.createConnection({
@@ -30,6 +31,7 @@ var con = mysql.createConnection({
   password: process.env.DB_PASSWORD, 
   database: process.env.DB_DATABASE
 });
+*/
 // ------------------------
 
 var scrapeDetails = async (browser, url, n) => {
@@ -89,7 +91,11 @@ var scrapeDetails = async (browser, url, n) => {
 
 
 var scrape = async (jail_id, url) => {
-	let browser = await puppeteer.launch({headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});	// <--- set to true for scraping
+// -----------------------------------    
+// Set headless to false when testing:
+// -----------------------------------    
+	let browser = await puppeteer.launch({headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+// -----------------------------------    
 	let page = await browser.newPage();
 	await page.goto(url);
     await page.waitForSelector("#pager_center > table > tbody > tr > td:nth-child(5) > select");
@@ -100,7 +106,7 @@ var scrape = async (jail_id, url) => {
     }));
     for (var d in data) {
         d = parseInt(d);
-        if (d < 30000) {
+        if (d < 3000) {
             try {
                 let deets = await scrapeDetails(browser, url, d+1);
                 if (deets.name!=null) {
@@ -122,14 +128,14 @@ var scrape = async (jail_id, url) => {
         // ------------------------
         // Hide this when testing:
         // ------------------------
-                    con.query(sql, vals, function (err, results, fields) {
+//                    con.query(sql, vals, function (err, results, fields) {
         // ------------------------
                         var sqlb = "INSERT INTO charge_records (jail_record_id, charge, status, docket_number, bond_amount, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
                         for (var c in deets.charges) {
         // ------------------------
         // Hide this when working:
         // ------------------------
-        //var results = {insertId:101};                    
+        var results = {insertId:101};                    
         // ------------------------
                             var valsb = [
                                 results.insertId
@@ -148,10 +154,14 @@ var scrape = async (jail_id, url) => {
         // ------------------------
         // Hide this when testing:
         // ------------------------
-                            con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
+//                            con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
+        // ------------------------
                         }
         // ------------------------
-                    });
+        // Hide this when testing:
+        // ------------------------
+//                    });
+        // ------------------------
                 }
             } catch(er) {
                 console.log(er);
