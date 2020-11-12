@@ -103,54 +103,56 @@ var scrape = async (jail_id, url) => {
         if (d < 30000) {
             try {
                 let deets = await scrapeDetails(browser, url, d+1);
-    //            console.log("deets", deets);
-                var sql = "INSERT INTO jail_records (jail_id, name, age, sex, race, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
-                var vals = [
-                        jail_id
-                        , deets.name
-                        , deets.age
-                        , deets.sex
-                        , deets.race
-                    ];
-    // ------------------------
-    // Hide this when working:
-    // ------------------------
-                console.log(sql);
-                console.log(vals);
-    // ------------------------
-    // ------------------------
-    // Hide this when testing:
-    // ------------------------
-                con.query(sql, vals, function (err, results, fields) {
-    // ------------------------
-                    var sqlb = "INSERT INTO charge_records (jail_record_id, charge, status, docket_number, bond_amount, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
-                    for (var c in deets.charges) {
-    // ------------------------
-    // Hide this when working:
-    // ------------------------
-    //var results = {insertId:101};                    
-    // ------------------------
-                        var valsb = [
-                            results.insertId
-                            , deets.charges[c].charge
-                            , deets.charges[c].charge_status
-                            , deets.charges[c].docket_number
-                            , deets.charges[c].bond_amount
+                if (deets.name!=null) {
+        //            console.log("deets", deets);
+                    var sql = "INSERT INTO jail_records (jail_id, name, age, sex, race, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
+                    var vals = [
+                            jail_id
+                            , deets.name
+                            , deets.age
+                            , deets.sex
+                            , deets.race
                         ];
-    // ------------------------
-    // ------------------------
-    // Hide this when working:
-    // ------------------------
-                        console.log(sqlb);
-                        console.log(valsb);
-    // ------------------------
-    // ------------------------
-    // Hide this when testing:
-    // ------------------------
-                        con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
-                    }
-    // ------------------------
-                });
+        // ------------------------
+        // Hide this when working:
+        // ------------------------
+                    console.log(sql);
+                    console.log(vals);
+        // ------------------------
+        // ------------------------
+        // Hide this when testing:
+        // ------------------------
+                    con.query(sql, vals, function (err, results, fields) {
+        // ------------------------
+                        var sqlb = "INSERT INTO charge_records (jail_record_id, charge, status, docket_number, bond_amount, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
+                        for (var c in deets.charges) {
+        // ------------------------
+        // Hide this when working:
+        // ------------------------
+        //var results = {insertId:101};                    
+        // ------------------------
+                            var valsb = [
+                                results.insertId
+                                , deets.charges[c].charge
+                                , deets.charges[c].charge_status
+                                , deets.charges[c].docket_number
+                                , deets.charges[c].bond_amount
+                            ];
+        // ------------------------
+        // ------------------------
+        // Hide this when working:
+        // ------------------------
+                            console.log(sqlb);
+                            console.log(valsb);
+        // ------------------------
+        // ------------------------
+        // Hide this when testing:
+        // ------------------------
+                            con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
+                        }
+        // ------------------------
+                    });
+                }
             } catch(er) {
                 console.log(er);
             }
