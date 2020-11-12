@@ -22,7 +22,7 @@ const parser = new Parser();
 // ------------------------
 // Hide this when testing:
 // ------------------------
-/*
+
 const mysql = require('mysql');
 require('dotenv').config({ path: __dirname+'/../.env' })
 var con = mysql.createConnection({
@@ -31,7 +31,7 @@ var con = mysql.createConnection({
   password: process.env.DB_PASSWORD, 
   database: process.env.DB_DATABASE
 });
-*/
+
 // ------------------------
 
 var scrapeDetails = async (browser, url, n) => {
@@ -128,14 +128,14 @@ var scrape = async (jail_id, url) => {
         // ------------------------
         // Hide this when testing:
         // ------------------------
-//                    con.query(sql, vals, function (err, results, fields) {
+                    con.query(sql, vals, function (err, results, fields) {
         // ------------------------
                         var sqlb = "INSERT INTO charge_records (jail_record_id, charge, status, docket_number, bond_amount, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
                         for (var c in deets.charges) {
         // ------------------------
         // Hide this when working:
         // ------------------------
-        var results = {insertId:101};                    
+//        var results = {insertId:101};                    
         // ------------------------
                             var valsb = [
                                 results.insertId
@@ -154,13 +154,13 @@ var scrape = async (jail_id, url) => {
         // ------------------------
         // Hide this when testing:
         // ------------------------
-//                            con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
+                            con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
         // ------------------------
                         }
         // ------------------------
         // Hide this when testing:
         // ------------------------
-//                    });
+                    });
         // ------------------------
                 }
             } catch(er) {
