@@ -1,16 +1,17 @@
 /*
+
 USAGE:
 
 # node p2c.js <jail_id> <jail_p2c_url>
 # node p2c.js 25 http://p2c.wakeso.net/jailinmates.aspx
 
-'4', 'http://www.morgantonps.org/p2c/', 'burke', 'App\\Scrapers\\P2CScraper'
-'5', 'http://onlineservices.cabarruscounty.us/p2c/', 'cabarrus', 'App\\Scrapers\\P2CScraper'
-'10', 'http://74.218.167.200/p2c/', 'cleveland', 'App\\Scrapers\\P2CScraper'
-'12', 'https://p2c.fcso.us/', 'forsyth', 'App\\Scrapers\\P2CScraper'
-'18', 'http://p2c.lincolnsheriff.org/', 'lincoln', 'App\\Scrapers\\P2CScraper'
-'20', 'http://p2c.nhcgov.com/p2c/', 'new_hanover', 'App\\Scrapers\\P2CScraper'
-'25', 'http://p2c.wakeso.net/', 'wake', 'App\\Scrapers\\P2CScraper'
+4 http://www.morgantonps.org/p2c/jailinmates.aspx burke
+5 http://onlineservices.cabarruscounty.us/p2c/jailinmates.aspx cabarrus
+10 http://74.218.167.200/p2c/jailinmates.aspx cleveland
+12 https://p2c.fcso.us/jailinmates.aspx forsyth
+18 http://p2c.lincolnsheriff.org/jailinmates.aspx lincoln
+20 http://p2c.nhcgov.com/p2c/jailinmates.aspx new_hanover
+25 http://p2c.wakeso.net/jailinmates.aspx wake
 
 */
 const puppeteer = require('puppeteer');
@@ -30,9 +31,9 @@ var con = mysql.createConnection({
 */
 
 var scrapeDetails = async (browser, url, n) => {
-    console.log("----- GRABBING DEETS ---------");
-    console.log(n);
-    console.log("------------------------------");
+//    console.log("----- GRABBING DEETS ---------");
+//    console.log(n);
+//    console.log("------------------------------");
 	let page = await browser.newPage();
 	await page.goto(url);
 
@@ -82,13 +83,11 @@ var scrapeDetails = async (browser, url, n) => {
 
 var scrape = async (jail_id, url) => {
 	let browser = await puppeteer.launch({headless: false});	// <--- set to true for scraping
-
 	let page = await browser.newPage();
 	await page.goto(url);
     await page.waitForSelector("#pager_center > table > tbody > tr > td:nth-child(5) > select");
     await page.select('#pager_center > table > tbody > tr > td:nth-child(5) > select', '10000');
 	await page.waitForTimeout(1000);
-
     let data = await page.$$eval('#tblII tbody tr', tds => tds.map((td) => {
       return td.innerText;
     }));
@@ -96,8 +95,7 @@ var scrape = async (jail_id, url) => {
         d = parseInt(d);
         if (d < 1) {
             let deets = await scrapeDetails(browser, url, d+1);
-            console.log("deets", deets);
-
+//            console.log("deets", deets);
             var sql = "INSERT INTO jail_records (jail_id, name, age, sex, race, created_at, updated_at) VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)";
             var vals = [
                     jail_id
@@ -125,13 +123,9 @@ var results = {insertId:101};
 //                    con.query(sqlb, valsb, function(errb, resultsb, fieldsb) {});
                 }
 //            }
-
-
-            
         }
     }
-
-    console.log("CLOSING BROWSER");
+//    console.log("CLOSING BROWSER");
 	browser.close();
 	return {};
 };
