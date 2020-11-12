@@ -4,6 +4,14 @@ USAGE:
 # node p2c.js <jail_id> <jail_p2c_url>
 # node p2c.js 25 http://p2c.wakeso.net/jailinmates.aspx
 
+'4', 'http://www.morgantonps.org/p2c/', 'burke', 'App\\Scrapers\\P2CScraper'
+'5', 'http://onlineservices.cabarruscounty.us/p2c/', 'cabarrus', 'App\\Scrapers\\P2CScraper'
+'10', 'http://74.218.167.200/p2c/', 'cleveland', 'App\\Scrapers\\P2CScraper'
+'12', 'https://p2c.fcso.us/', 'forsyth', 'App\\Scrapers\\P2CScraper'
+'18', 'http://p2c.lincolnsheriff.org/', 'lincoln', 'App\\Scrapers\\P2CScraper'
+'20', 'http://p2c.nhcgov.com/p2c/', 'new_hanover', 'App\\Scrapers\\P2CScraper'
+'25', 'http://p2c.wakeso.net/', 'wake', 'App\\Scrapers\\P2CScraper'
+
 */
 const puppeteer = require('puppeteer');
 const fs = require("fs");
@@ -22,6 +30,9 @@ var con = mysql.createConnection({
 */
 
 var scrapeDetails = async (browser, url, n) => {
+    console.log("----- GRABBING DEETS ---------");
+    console.log(n);
+    console.log("------------------------------");
 	let page = await browser.newPage();
 	await page.goto(url);
 
@@ -82,6 +93,7 @@ var scrape = async (jail_id, url) => {
       return td.innerText;
     }));
     for (var d in data) {
+        d = parseInt(d);
         if (d < 1) {
             let deets = await scrapeDetails(browser, url, d+1);
             console.log("deets", deets);
@@ -119,6 +131,7 @@ var results = {insertId:101};
         }
     }
 
+    console.log("CLOSING BROWSER");
 	browser.close();
 	return {};
 };
