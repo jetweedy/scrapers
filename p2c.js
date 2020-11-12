@@ -168,7 +168,7 @@ var scrape = async (jail_id, url) => {
             }
         }
     }
-//    console.log("CLOSING BROWSER");
+    console.log("CLOSING BROWSER");
 	browser.close();
 	return {};
 };
